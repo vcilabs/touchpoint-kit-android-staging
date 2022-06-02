@@ -132,13 +132,10 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 Any Banner or Pop-up assigned to the specified screen will be triggered and display automatically.
 
-Since Pop-ups can be configured by the Touchpoint admin to trigger only after a specified amount of time has passed, it is possible for a user to navigate to a screen and quickly navigate away before the Pop-up is shown. The Pop-up will then be displayed on the second screen, which may be undesired. To prevent this it is possible to cancel the Pop-up when the first screen is being destroyed:
+Since Pop-ups can be configured by the Touchpoint admin to trigger only after a specified amount of time has passed, it is possible for a user to navigate to a screen and quickly navigate away before the Pop-up is shown. The Pop-up will then be displayed on the second screen, which may be undesired. To prevent this it is possible to cancel the Pop-up when the first screen is being dismissed:
 
 ```kotlin
-override fun onDestroy() {
-    super.onDestroy()
-    TouchPointActivity.shared.cancelPopupForScreen(SCREEN_NAME)
-}
+TouchPointActivity.shared.cancelPopupForScreen(SCREEN_NAME)
 ```
 
 ### Triggering Custom Components
