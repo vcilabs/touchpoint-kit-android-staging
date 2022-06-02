@@ -60,7 +60,6 @@ Here we are defining the `Home` screen and `ProductList` screen as being able to
 ## Implementation
 
 ### Initial Setup
-
 Add the following to the strings.xml file. `api_key`, `api_secret`, and `pod_name` are required, the rest are optional and for developer convenience.
 
 ```xml
@@ -93,15 +92,24 @@ Add the following to the strings.xml file. `api_key`, `api_secret`, and `pod_nam
 Import the Touchpoint SDK using `import com.visioncritical.touchpointkit.utils.TouchPointActivity` and add the following initialization code. For example in the `onCreate` function of `MainActivity` or similar entry point.
 
 ```kotlin
+// These are the Screens and Screen Components in your mobile app that you 
+// designate as being able to render Touchpoint activities.
 val screenComponents:List<HashMap<String, String>> = listOf(
     hashMapOf("screenName" to "Home"),
     hashMapOf("screenName" to "Settings", "componentName" to "Lightbulb"),
     hashMapOf("screenName" to "ProductList")
 )
 
+// The visitor payload describes the current user of the app. The "id"
+// is used to help determine if this particular user has already
+// seen certain activities and should be a unique identifier.
+// "userAttributes" are the targeting parameters. "type" is the data type
+// found in the "value". The data type is required as Touchpoint has
+// various operators that make sense for certain data types and not 
+// others, such as "greater than" or "less than" for numbers.
+// Valid values are number, boolean, string and date.
 val visitor: HashMap<String, Any> = HashMap<String, Any>()
 visitor["id"] = "12345"
-
 val userAttributes: Array<HashMap<String, Any>> = Array(4) { i -> HashMap<String, Any>() }
 userAttributes[0] = hashMapOf("key" to "age", "type" to "number", "value" to 53)
 userAttributes[1] = hashMapOf("key" to "city", "type" to "string", "value" to "Springfield")
@@ -113,7 +121,6 @@ TouchPointActivity.shared.configure(screenComponents, visitor)
 ```
 
 ### Triggering Banners and Pop-ups
-
 For Banner and Pop-up triggers you will just need to tell the SDK which screen is currently visible. To do this import the Touchpoint SDK using `import com.visioncritical.touchpointkit.utils.TouchPointActivity` and set the screen name, preferably in the `onCreate` function of an Activity.
 
 ```kotlin
@@ -135,7 +142,6 @@ override fun onDestroy() {
 ```
 
 ### Triggering Custom Components
-
 For the Custom Component trigger you can hook into any lifecycle event and invoke the Touchpoint activity directly:
 
 ```kotlin
