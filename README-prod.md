@@ -69,7 +69,7 @@ Add the following to the strings.xml file. `api_key`, `api_secret`, and `pod_nam
 
 <!-- The pod is the geographical region hosting your instance of Touchpoint. -->
 <!-- Easiest determined from your URL while logged in, e.g. eu2.alida.com -->
-<!-- Valid values are: na1, na2, eu1, eu2, ap2, ap3 -->
+<!-- Valid values are: NA1, NA2, EU1, EU2, AP2, AP3 -->
 <string name="pod_name">EU2</string>
 
 <!-- Should be "false" in production and is "false" by default. -->
@@ -85,7 +85,7 @@ Add the following to the strings.xml file. `api_key`, `api_secret`, and `pod_nam
 <!-- set this to "true". "false" by default. -->
 <bool name="enable_debug_logs">true</bool>
 
-<!-- Prevents any logs being generated, default is "false". -->
+<!-- Prevents any logs being generated. "false" by default. -->
 <bool name="disable_all_logs">false</bool>
 ```
 
