@@ -1,7 +1,7 @@
 # Touchpoint Mobile SDK
 The purpose of the Touchpoint mobile SDK is to create an integration between a mobile app and Alida Touchpoint. This integration enables the ability to publish and manage the Touchpoint activities that are displayed in a mobile app without the need to release a new version of the mobile app or make any code changes.
 
-Important concepts regarding Touchpoint can be found here: ### insert webhelp link here ###. Some of these concepts are also described briefly below but the link above has a more thorough description.
+Important concepts regarding Touchpoint can be found [here](https://touchpoint.help.alida.com/redirect.html#9C2DA302D89B4DCD8DE1377F84A07BD1). Some of these concepts are also described briefly below but the link above has a more thorough description.
 
 ## Minimum Requirements
 - minSdkVersion supported: 23
@@ -9,8 +9,8 @@ Important concepts regarding Touchpoint can be found here: ### insert webhelp li
 ## Sample App
 https://github.com/vcilabs/touchpointkit-sample-android
 
-## Installation using Pods
-Add the jitpack.io repository to the build.gradle or settings.gradle file (next to the other repository definitions in the app). For example:
+## Installation
+Add the jitpack.io repository to the `build.gradle` or `settings.gradle` file (next to the other repository definitions in the app). For example:
 
 ```gradle
 dependencyResolutionManagement {
@@ -120,6 +120,9 @@ visitor["userAttributes"] = userAttributes
 TouchPointActivity.shared.configure(screenComponents, visitor)
 ```
 
+#### NOTE
+Do not leverage visitor attributes to pass personally identifying information (PII) into Touchpoint. To protect visitor privacy, do not pass data into Touchpoint that could be considered as personally identifiable information (PII). PII includes, but is not limited to, information such as social security numbers, personal home addresses, credit card numbers, financial account numbers, street address, etc.
+
 ### Triggering Banners and Pop-ups
 For Banner and Pop-up triggers you will just need to tell the SDK which screen is currently visible. To do this import the Touchpoint SDK using `import com.visioncritical.touchpointkit.utils.TouchPointActivity` and set the screen name, preferably in the `onCreate` function of an Activity.
 
@@ -154,3 +157,233 @@ if (TouchPointActivity.shared.shouldShowActivity(SCREEN_NAME, COMPONENT_NAME)) {
 ```
 
 This will allow you to manage how you render out your screen, for example by hiding or showing a button based on whether or not a Touchpoint activity is availble.
+
+## React Native Integration for Android
+
+In your React Native project will be a folder named `android`. In this folder will be the Android native part of your app. To install this SDK into your app use the method described [above](#installation). Then add the necessary config elements to your `strings.xml` file as discussed in the [Initial Setup](#initial-setup) section.
+
+In the `onCreate` function of your `MainApplication`, import the SDK by adding an import line to the top of the file: `import com.visioncritical.touchpointkit.utils.TouchPointActivity` and add following code snippet. Change the `screenComponents` and `visitor` object according to your requirements.
+
+Please see the [Initial Setup](#initial-setup) section above for a description of how to use the various parameters in the snippet below and what their usage is.
+
+```java
+@Override
+public void onCreate() {
+  super.onCreate();
+  
+  // ...
+
+  List<HashMap<String, String>> screenComponents = Arrays.asList(
+    new HashMap<String, String>() {{
+      put("screenName", "Banner Screen");
+    }},
+    new HashMap<String, String>() {{
+      put("screenName", "Popup Screen");
+    }},
+    new HashMap<String, String>() {{
+      put("screenName", "Custom Component Screen");
+      put("componentName", "Button 1");
+    }},
+    new HashMap<String, String>() {{
+      put("screenName", "Custom Component Screen");
+      put("componentName", "Button 2");
+    }},
+    new HashMap<String, String>() {{
+      put("screenName", "Custom Component Screen");
+      put("componentName", "Button 3");
+    }}
+  );
+
+  HashMap<String, Object> visitor = new HashMap<String, Object>() {{
+    put("id", "12345");
+  }};
+  HashMap[] userAttributes = new HashMap[]{
+    new HashMap<String, String>() {{
+      put("key", "age");
+      put("type", "number");
+      put("value", "53");
+    }},
+    new HashMap<String, String>() {{
+      put("key", "isLoyaltyMember");
+      put("type", "boolean");
+      put("value", "true");
+    }},
+    new HashMap<String, String>() {{
+      put("key", "city");
+      put("type", "string");
+      put("value", "Springfield");
+    }},
+    new HashMap<String, String>() {{
+      put("key", "previousVisitDate");
+      put("type", "date");
+      put("value", "2022-04-11T21:51:34+0000");
+    }}
+  };
+  visitor.put("userAttributes", userAttributes);
+
+  TouchPointActivity.Companion.getShared().configure(screenComponents, visitor);
+
+  // ...
+}
+```
+
+Now create a file named `TouchPointKitBridge.java`. Add the following code to this file:
+
+```java
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Log;
+
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.ReadableType;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.visioncritical.touchpointkit.utils.TouchPointActivity;
+import com.visioncritical.touchpointkit.utils.TouchPointActivityInterface;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class TouchPointKitBridge extends ReactContextBaseJavaModule implements TouchPointActivityInterface {
+    private static ReactApplicationContext reactContext;
+
+    TouchPointKitBridge(ReactApplicationContext context) {
+        super(context);
+        reactContext = context;
+    }
+
+    @Override
+    public String getName() {
+        return "TouchPointKitBridge";
+    }
+
+    @ReactMethod
+    public void configure(List<HashMap<String, String>> screenComponents, HashMap<String, Object> visitor) {
+        TouchPointActivity.Companion.getShared().configure(screenComponents, visitor);
+    }
+
+    @ReactMethod
+    public void setScreen(String screenName) {
+        Context context = getCurrentActivity();
+
+        if (context == null) {
+            context = reactContext;
+        }
+
+        TouchPointActivity.Companion.getShared().setCurrentScreen(context, screenName);
+    }
+
+    @ReactMethod
+    public void openActivity(String screenName, String componentName) {
+        if(TouchPointActivity.Companion.getShared().shouldShowActivity(screenName, componentName)) {
+            Context context = getCurrentActivity();
+
+            if (context == null) {
+                context = reactContext;
+            }
+            TouchPointActivity.Companion.getShared().openActivityForScreenComponent(context, screenName, componentName, this);
+        }
+    }
+
+    @ReactMethod
+    public void enableDebugLogs(Boolean enable) {
+        TouchPointActivity.Companion.getShared().setEnableDebugLogs(enable);
+    }
+
+    @ReactMethod
+    public void disableAllLogs(Boolean disable) {
+        TouchPointActivity.Companion.getShared().setDisableAllLogs(disable);
+    }
+
+    @ReactMethod
+    public void disableAPIFilter(Boolean apiFilter) {
+        TouchPointActivity.Companion.getShared().setDisableApiFilter(apiFilter);
+    }
+
+    @ReactMethod
+    public void disableCaching(Boolean caching) {
+        TouchPointActivity.Companion.getShared().setDisableCaching(caching);
+    }
+
+    @ReactMethod
+    public void setVisitor(HashMap<String, Object> visitor) {
+        TouchPointActivity.Companion.getShared().setVisitor(visitor);
+    }
+
+    @Override
+    public void onTouchPointActivityFinished() {
+        Log.d("TouchPointKitBridge","onTouchPointActivityFinished...");
+        this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit("onActivityComplete", "TouchPointActivityFinished");
+    }
+}
+```
+
+And then create another file named `TouchPointKitPackage.java` and add the following code into it:
+
+```java
+import com.facebook.react.ReactPackage;
+import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.uimanager.ViewManager;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class TouchPointKitPackage implements ReactPackage {
+
+    @Override
+    public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<NativeModule> createNativeModules(
+            ReactApplicationContext reactContext) {
+        List<NativeModule> modules = new ArrayList<>();
+
+        modules.add(new TouchPointKitBridge(reactContext));
+
+        return modules;
+    }
+}
+```
+
+In `MainApplication.java`, in the method `protected List<ReactPackage> getPackages()` add the following line:
+```java
+packages.add(new TouchPointKitPackage());
+```
+
+From your App.js call `TouchPointKitBridge` methods using `NativeModules`.
+
+```javascript
+import {
+  NativeModules,
+  NativeEventEmitter,
+} from 'react-native';
+
+// Register for event listening from SDK (activity complete event)
+const { TouchPointKitBridge } = NativeModules;
+const eventEmitter = new NativeEventEmitter(TouchPointKitBridge);
+const subscription = eventEmitter.addListener(
+  'onActivityComplete',
+  onActivityComplete,
+);
+
+const onActivityComplete = event => {
+  console.log('onActivityComplete called');
+  console.log(event);
+};
+
+// To trigger a Pop-up or Banner
+NativeModules.TouchPointKitBridge.setScreen('SCREEN_NAME');
+
+// To trigger a custom component
+NativeModules.TouchPointKitBridge.openActivity('SCREEN_NAME', 'COMPONENT_NAME');
+```
