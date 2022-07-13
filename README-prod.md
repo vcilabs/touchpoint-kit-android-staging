@@ -60,33 +60,33 @@ Here we are defining the `Home` screen and `ProductList` screen as being able to
 ## Implementation
 
 ### Initial Setup
-Add the following to the strings.xml file. `api_key`, `api_secret`, and `pod_name` are required, the rest are optional and for developer convenience.
+Add the following to the strings.xml file. `touchpoint_api_key`, `touchpoint_api_secret`, and `touchpoint_pod_name` are required, the rest are optional and for developer convenience.
 
 ```xml
 <!-- API key and secret are provided by the Touchpoint UI -->
-<string name="api_key">API_KEY</string>
-<string name="api_secret">API_SECRET</string>
+<string name="touchpoint_api_key">API_KEY</string>
+<string name="touchpoint_api_secret">API_SECRET</string>
 
 <!-- The pod is the geographical region hosting your instance of Touchpoint. -->
 <!-- Easiest determined from your URL while logged in, e.g. eu2.alida.com -->
 <!-- Valid values are: NA1, NA2, EU1, EU2, AP2, AP3 -->
-<string name="pod_name">EU2</string>
+<string name="touchpoint_pod_name">EU2</string>
 
 <!-- Should be "false" in production and is "false" by default. -->
 <!-- Touchpoint generally won't show an activity to the same user twice which -->
 <!-- can make it tricky to test. Setting this to "true" makes it -->
 <!-- possible for a user to be served the same activity more than once. -->
-<bool name="disable_api_filter">false</bool>
+<bool name="touchpoint_disable_api_filter">false</bool>
 
 <!-- To disable web view caching, set to "true". "false" by default. -->
-<bool name="disable_caching">false</bool>
+<bool name="touchpoint_disable_caching">false</bool>
 
 <!-- Logs at debug level are silenced by default. To enable debug logs, -->
 <!-- set this to "true". "false" by default. -->
-<bool name="enable_debug_logs">true</bool>
+<bool name="touchpoint_enable_debug_logs">true</bool>
 
 <!-- Prevents any logs being generated. "false" by default. -->
-<bool name="disable_all_logs">false</bool>
+<bool name="touchpoint_disable_all_logs">false</bool>
 ```
 
 Import the Touchpoint SDK using `import com.visioncritical.touchpointkit.utils.TouchPointActivity` and add the following initialization code. For example in the `onCreate` function of `MainActivity` or similar entry point.
