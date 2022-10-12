@@ -26,7 +26,7 @@ dependencyResolutionManagement {
 Then add the following dependencies to the build.gradle file. To determine the latest tag please see https://github.com/vcilabs/touchpoint-kit-android/tags.
 
 ```gradle
-implementation 'com.github.vcilabs:touchpoint-kit-android:1.0.1'
+implementation 'com.github.vcilabs:touchpoint-kit-android:1.0.2'
 implementation 'com.android.volley:volley:1.2.1'
 implementation 'com.google.android.material:material:1.2.1'
 implementation 'androidx.startup:startup-runtime:1.0.0'
